@@ -1,23 +1,25 @@
 !function () {
-    function writeCode(prefix, code, fn) {
-        let $code = $('#code')
-        let $style = $('#styleTag')
-        let n = 0
-        let h
-        let id = setInterval(() => {
-            n += 1
-            $code.html(prefix + code.substring(0, n))
-            $style.html(prefix + code.substring(0, n))
-            h = $code.prop('scrollHeight')
-            $code.scrollTop(h)
-            //$code.animate({"scrollTop": $code.prop('scrollHeight')}, 10)
-            if (n >= code.length) {
-                window.clearInterval(id)
-            }
-        }, 10)
-    }
 
-    let result = `
+  var duration = 50  //默认的计时时间
+
+  $('.svgButton').on('click', 'svg', (e) => {
+    let $svg = $(e.currentTarget)
+    let speed = $svg.attr('data-speed')
+    $svg.addClass('active').siblings('.active').removeClass('active')
+    switch (speed) {
+      case 'slow':
+        duration = 100
+        break
+      case 'normal':
+        duration = 50
+        break
+      case 'fast':
+        duration = 10
+        break
+    }
+  })
+
+  let result = `
 /* 我们来画一只皮卡丘吧
  * 首先准备一下画布
  * 当然了 它已经与画布融为了一体
@@ -31,11 +33,6 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-}
-.paint {
-  width: 100%;
-  height: 100%;
-  position: relative;
 }
 
 /* 画一个鼻子 */
@@ -83,12 +80,12 @@
 .eye::before {
   content: "";
   display: block;
-  position: absolute;
-  top: 1px;
-  left: 3px;
   width: 26px;
   height: 26px;
   background: white;
+  position: absolute;
+  top: 1px;
+  left: 3px;
   border: 2px solid black;
   border-radius: 50%;
 }
@@ -179,5 +176,25 @@
 
 /* OK，绘画完成 */
     `
-    writeCode('', result)
+  writeCode('', result)
+
+  function writeCode(prefix, code, fn) {
+    let $code = $('#code')
+    let $style = $('#styleTag')
+    let n = 0
+    let h
+    let id = setTimeout(function timer() { //记录下计时器的id，如果需要直接显示功能可能需要用到
+      n += 1
+      $code.html(prefix + code.substring(0, n))
+      $style.html(prefix + code.substring(0, n))
+      h = $code.prop('scrollHeight')
+      $code.scrollTop(h)
+      if (n < code.length) {
+        id = setTimeout(timer, duration)
+      } else {
+        fn && fn.call()
+      }
+    }, duration)
+  }
+
 }.call()
